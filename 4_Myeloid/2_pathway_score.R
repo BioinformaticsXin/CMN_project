@@ -10,24 +10,6 @@ library(org.Hs.eg.db)
 # load data
 Myeloid_cell <- readRDS("/4_Myeloid/Myeloid_cell_annotation.rds")
 
-# hsa04668	TNF signaling pathway
-# hsa04657	IL-17 signaling pathway
-# hsa04064	NF-kappa B signaling pathway
-# hsa04060	Cytokine-cytokine receptor interaction
-# hsa04621	NOD-like receptor signaling pathway
-
-pathway <- data.frame(id = c("hsa04668","hsa04657","hsa04064","hsa04060","hsa04621","hsa04145","hsa04370","hsa04666"), 
-name = c("TNF signaling pathway","IL-17 signaling pathway","NF-kappa B signaling pathway","Cytokine-cytokine receptor interaction","NOD-like receptor signaling pathway","Phagosome","VEGF signaling pathway","Fc gamma R-mediated phagocytosis"), stringsAsFactors = FALSE)
-
-# Obtain pathway genes and convert ENTREZID to SYMBOL
-KEGG.pathway <- as.list(KEGG.db::KEGGPATHID2EXTID)
-KEGG.pathway <- KEGG.pathway[pathway[,1]]
-KEGG.pathway.symbol <- lapply(KEGG.pathway, function(x){
-    ID_SYMBOL <- bitr(x, fromType="ENTREZID", toType="SYMBOL", OrgDb = "org.Hs.eg.db")
-    return(ID_SYMBOL$SYMBOL)
-})
-names(KEGG.pathway.symbol) <- pathway[,2]
-
 ##############################################################################################################################################
 #add Angiogenesis_signature, Phagocytosis_signature, from "A pan-cancer single-cell transcriptional atlas of tumor infiltrating myeloid cells"
 ##############################################################################################################################################

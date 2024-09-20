@@ -29,6 +29,45 @@ sample_frame <- sample_frame[which(sample_frame[,2] != "Regional Cutaneous or Su
 sample_frame[,2] <- as.character(sample_frame[,2])
 colnames(sample_frame) <- c("sample_id", "sample_type")
 
+cibersortx_result <- read.table("/2_Melanocyte/4_cibersortx/TCGA_total/CIBERSORTx_Adjusted.txt", header = T, sep = "\t", stringsAsFactors = F)
+cibersortx_result[,1] <- substring(cibersortx_result[,1], 1, 12)
+cibersortx_result <- cibersortx_result[,1:5]
+cibersortx_result <- reshape2::melt(cibersortx_result, id.vars=c("Mixture"),variable.name="cluster",value.name="fraction")
+colnames(cibersortx_result)[1] <- "sample_id"
+cibersortx_result <- merge(cibersortx_result, sample_frame, by = "sample_id")
+
+data.frame(cibersortx_result %>% group_by(sample_type, cluster) %>% summarise(median = median(fraction)))
+cibersortx_result$cluster <- factor(cibersortx_result$cluster, levels = c("cluster1", "cluster2", "cluster3", "cluster4"))
+cibersortx_result$sample_type <- factor(cibersortx_result$sample_type, levels = c("Primary Tumor", "Distant Metastasis", "Regional Lymph Node"))
+
+p <- ggplot(cibersortx_result, aes(x = cluster, y = fraction, fill = cluster, color = cluster)) +
+    geom_boxplot(width = .8,show.legend = F,
+                position = position_dodge(0.9),
+                alpha = 0.5,
+                outlier.color = 'grey50') +
+    geom_point(position=position_jitterdodge(jitter.width = 0.5)) +
+    theme_classic(base_size = 16) +
+    theme(axis.text.x = element_text(angle = 45,hjust = 1,color = 'black'),
+          legend.position = 'top') +
+    scale_fill_manual(values = c(ggsci::pal_nejm("default",alpha = 1)(8))) +
+    scale_color_manual(values = c(ggsci::pal_nejm("default",alpha = 1)(8))) +
+    facet_wrap(~sample_type, scales = "free", ncol = 4)
+ggsave(p, file="/2_Melanocyte/3_cluster_signature_in_bulk/TCGA/fraction.pdf", width=9, height=6)
+
+p <- ggplot(cibersortx_result, aes(x = sample_type, y = fraction, fill = sample_type, color = sample_type)) +
+    geom_boxplot(width = .8,show.legend = F,
+                position = position_dodge(0.9),
+                alpha = 0.5,
+                outlier.color = 'grey50') +
+    geom_point(position=position_jitterdodge(jitter.width = 0.5)) +
+    theme_classic(base_size = 16) +
+    theme(axis.text.x = element_text(angle = 45,hjust = 1,color = 'black'),
+          legend.position = 'top') +
+    scale_fill_manual(values = RColorBrewer::brewer.pal(n = 4, name = "Set2")) +
+    scale_color_manual(values = RColorBrewer::brewer.pal(n = 4, name = "Set2")) +
+    facet_wrap(~cluster, scales = "free", ncol = 4)
+ggsave(p, file="/2_Melanocyte/3_cluster_signature_in_bulk/TCGA/fraction_cluster.pdf", width=9, height=6)
+
 
 ##############Directly examine the scores of specifically expressed genes in each sample##############
 #cluster1

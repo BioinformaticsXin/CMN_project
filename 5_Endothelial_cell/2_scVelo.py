@@ -14,7 +14,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # set work path
-# os.chdir("/data/home/lixin/Project/SCC/Endothelial_cell/scVelo")
 os.chdir("/5_Endothelial_cell/2_scVelo/")
 # load sparse matrix:
 X = io.mmread("Endothelial_cell_counts.mtx")
